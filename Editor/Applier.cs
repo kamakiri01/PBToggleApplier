@@ -23,20 +23,6 @@ namespace PBToggleApplier
 
             var frameTimes = new List<float>{0};
             if (latestKeyframeTime != 0) frameTimes.Add(latestKeyframeTime); // SDK2のAnimation Overrideを流用している場合など、フレームが2つあるケース
-
-            var str1 = "";
-            enableComponentList.ForEach(e => {
-                str1 = str1 + ", " + e.gameObject.name;
-            });
-            Debug.Log(clip.name + ": enableComponentList: " + enableComponentList.Count + ", "  + str1);
-            var str2 = "";
-            disableComponentList.ForEach(e => {
-                str2 = str2 + ", \n" + e.gameObject.name;
-            });
-            Debug.Log(clip.name + ": disableComponentList: " + disableComponentList.Count + ", "  + str2);
-
-
-            return;
             _SetToggleKeyFrames<T>(enableComponentList, disableComponentList, clip, frameTimes, _avatar);
         }
 
