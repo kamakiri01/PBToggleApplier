@@ -32,9 +32,9 @@ namespace PBToggleApplier
                         Keyframe lastKeyFrame = curve.keys[curve.length - 1];
                         keys.Add((target.gameObject, lastKeyFrame.value));
                         latestKeyframeTime = Math.Max(latestKeyframeTime, lastKeyFrame.time);
-                        Debug.Log(lastKeyFrame.value + ", " + binding.path);
+                        //Debug.Log(lastKeyFrame.value + ", " + binding.path);
                     } else {
-                        Debug.Log(binding.path + " is no there.");
+                        //Debug.Log(binding.path + " is no there.");
                     }
                 }
             }

@@ -16,9 +16,11 @@ namespace PBToggleApplier
         private DefaultAsset _saveDirectory;
         #endif
         private bool isGenerateBackup = true;
+        private bool _isValidSettings = false;
+        private SerializedProperty listProperty;
 
         [SerializeField]
-        private List<AnimationClip> targetAnimationClips = new List<AnimationClip>();
+        private List<AnimationClip> targetAnimationClipList = new List<AnimationClip>();
 
         Vector2 scrollPosition = new Vector2(0, 0);
 
@@ -47,9 +49,9 @@ namespace PBToggleApplier
             var so = new SerializedObject(this);
             so.Update();
             GUIContent content = new GUIContent();
-            content.text = "[Drag AnimationClip Here]";
+            content.text = "Drag AnimationClip Here";
 
-            var listProperty = so.FindProperty("targetAnimationClips");
+            listProperty = so.FindProperty("targetAnimationClipList");
             using (new EditorGUILayout.HorizontalScope()) {
                 if (GUILayout.Button("Add")) {
                     listProperty.InsertArrayElementAtIndex(listProperty.arraySize);
@@ -71,11 +73,20 @@ namespace PBToggleApplier
             EditorGUILayout.LabelField("Save Option", EditorStyles.boldLabel);
             ++EditorGUI.indentLevel;
             isGenerateBackup = EditorGUILayout.ToggleLeft("Generate XXXX_bkup.anim(XXXX.anim clone)", isGenerateBackup);
-            EditorGUILayout.LabelField("Save Dir");
+            EditorGUILayout.LabelField("Backup Save Dir");
             --EditorGUI.indentLevel;
             EditorGUILayout.Space();
 
-            if (GUILayout.Button("Run")) _Run();
+            Debug.Log("listProperty.arraySize: " + listProperty.arraySize);
+
+            _ValidateSettings();
+            using (new EditorGUI.DisabledScope(!_isValidSettings))
+            {
+                if (GUILayout.Button("Run"))
+                {
+                    _Run();
+                }
+            }
 
             EditorGUILayout.Space();
             EditorGUILayout.EndScrollView();
@@ -83,70 +94,15 @@ namespace PBToggleApplier
 
         private void _Run()
         {
-            foreach (var clip in targetAnimationClips)
+            foreach (var clip in targetAnimationClipList)
             {
-                _Apply(clip);
+                Applier.OverwriteAnimationClip<VRCPhysBone>(clip, isGenerateBackup, _avatar);
             }
         }
 
-        private void _Apply(AnimationClip clip)
+        private void _ValidateSettings()
         {
-            if (isGenerateBackup) _CreateBackupFile(clip);
-
-            (float latestKeyframeTime, List<(GameObject GameObject, float Value)> keys) = AnimationClipUtil.ListGameObjectFromAnimation(clip, _avatar);
-
-            List<GameObject> enableList = keys.Where(o => o.Value == 1).Select(o => o.GameObject).ToList();
-            List<GameObject> disableList = keys.Where(o => o.Value == 0).Select(o => o.GameObject).ToList();
-            (List<DynamicBone> enableDBList, List<DynamicBone> disableDBList) = _ListTargetDynamicBones<DynamicBone>(enableList, disableList);
-            // List<VRCPhysBone> hoge = new List<VRCPhysBone>();
-
-            var frameTimes = new List<float>{0};
-            if (latestKeyframeTime != 0) frameTimes.Add(latestKeyframeTime); // SDK2のAnimation Overrideを流用している場合など、フレームが2つあるケース
-            _SetToggleKeyFrames(enableDBList, disableDBList, clip, frameTimes);
-        }
-
-        private (
-            List<T> enableDBList,
-            List<T> disableDBList
-        ) _ListTargetDynamicBones<T>(List<GameObject> enableList, List<GameObject> disableList)
-        {
-            List<SkinnedMeshRenderer> enableSMR = Util.ListSkinnedMeshRenderersInChildren(enableList);
-            List<SkinnedMeshRenderer> disableSMR = Util.ListSkinnedMeshRenderersInChildren(disableList);
-
-            // SkinnedMeshRenderer 階層に置かれる DynamicBone に対応
-            var bs1 = Util.ListBoneFromSkinnedMeshRenderers(enableSMR).Union(enableList).ToList();
-            var bs2 = Util.ListBoneFromSkinnedMeshRenderers(disableSMR).Union(disableList).ToList();
-            // 共通の bone を参照する SkinnedMeshRenderer （素体など）の DynamicBone には干渉しない
-            var enableUniqueList = bs1.Except(bs2).ToList();
-            var disableUniqueList = bs2.Except(bs1).ToList();
-            List<T> enableDBList =  Util.ListComponentFromGameObject<T>(enableUniqueList);
-            List<T> disableDBList = Util.ListComponentFromGameObject<T>(disableUniqueList);
-
-            return (enableDBList, disableDBList);
-        }
-
-        private void _SetToggleKeyFrames(List<DynamicBone> enableDBList, List<DynamicBone> disableDBList, AnimationClip clip, List<float> frameTimes)
-        {
-            var editor = new AnimationClipEditor(_avatar, "", clip); // exportしないためsave pathは使用しない
-            foreach (DynamicBone db in enableDBList)
-            {
-                editor.SetCurveEnableDB(db, frameTimes);
-            };
-            foreach (DynamicBone db in disableDBList)
-            {
-                editor.SetCurveDisableDB(db, frameTimes);
-            };
-            EditorUtility.SetDirty(clip);
-            AssetDatabase.SaveAssets();
-        }
-
-        private void _CreateBackupFile(AnimationClip clip)
-        {
-            var assetPath = AssetDatabase.GetAssetPath(clip);
-            var dirPath = Path.GetDirectoryName(assetPath);
-            var fileName = Path.GetFileNameWithoutExtension(assetPath);
-            var bkupPath = Path.Combine(dirPath, fileName) + "_bkup.anim";
-            AssetDatabase.CopyAsset(assetPath, bkupPath);
+            _isValidSettings = !!_avatar && (targetAnimationClipList.FindAll(c => c != null).Count >= 1);
         }
     }
 }

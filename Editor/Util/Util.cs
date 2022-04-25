@@ -28,15 +28,15 @@ namespace PBToggleApplier
             return boneList.Distinct().ToList();
         }
 
-        public static List<T> ListComponentFromGameObject<T>(List<GameObject> list)
+        public static List<T> ListComponentsFromGameObjectList<T>(List<GameObject> list)
         {
-            List<T> dynamicBoneList = new List<T>();
-            foreach (GameObject bone in list)
+            List<T> componentList = new List<T>();
+            foreach (GameObject obj in list)
             {
-                T[] dynamicBones = bone.GetComponentsInChildren<T>(true);
-                dynamicBoneList.AddRange(dynamicBones);
+                T[] components = obj.GetComponentsInChildren<T>(true);
+                componentList.AddRange(components);
             }
-            return dynamicBoneList.Distinct().ToList();
+            return componentList.Distinct().ToList();
         }
     }
 }

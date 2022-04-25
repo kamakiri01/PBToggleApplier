@@ -68,7 +68,7 @@ namespace PBToggleApplier
             _animationClip.SetCurve(path, typeof(GameObject), "m_IsActive", curve);
         }
 
-        public void SetCurveEnableDB(DynamicBone component, List<float> frameTimes)
+        public void SetCurveEnableComponent<T>(T component, List<float> frameTimes) where T: Component
         {
             GameObject gameObject = component.gameObject;
             var path = PathUtil.DropLastSlash(PathUtil.GetHierarchyPath(gameObject, _avatarRoot));
@@ -84,17 +84,17 @@ namespace PBToggleApplier
                 keys.Add(new Keyframe(frameTime, 1));
             }
             AnimationCurve curve =  new AnimationCurve(keys.ToArray());
-            _animationClip.SetCurve(path, typeof(DynamicBone), "m_Enabled", curve);
+            _animationClip.SetCurve(path, typeof(T), "m_Enabled", curve);
         }
 
-        public void SetCurveDisableDB(DynamicBone component, List<float> frameTimes)
+        public void SetCurveDisableComponent<T>(T component, List<float> frameTimes) where T: Component
         {
             GameObject gameObject = component.gameObject;
             var path = PathUtil.DropLastSlash(PathUtil.GetHierarchyPath(gameObject, _avatarRoot));
             /*
             AnimationUtility.SetEditorCurve(
                   _animationClip,
-                EditorCurveBinding.FloatCurve(path, typeof(DynamicBone), "m_Enabled"),
+                EditorCurveBinding.FloatCurve(path, typeof(T), "m_Enabled"),
                 AnimationCurve.Linear(0, 0, 1 / 60f, 0)
             );
             */
@@ -104,7 +104,7 @@ namespace PBToggleApplier
                 keys.Add(new Keyframe(frameTime, 0));
             }
             AnimationCurve curve =  new AnimationCurve(keys.ToArray());
-            _animationClip.SetCurve(path, typeof(DynamicBone), "m_Enabled", curve);
+            _animationClip.SetCurve(path, typeof(T), "m_Enabled", curve);
         }
 
         // ParentConstraint専用
