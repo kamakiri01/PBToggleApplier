@@ -66,7 +66,7 @@ namespace PBToggleApplier
             var assetPath = AssetDatabase.GetAssetPath(clip);
             var dirPath = Path.GetDirectoryName(assetPath);
             var fileName = Path.GetFileNameWithoutExtension(assetPath);
-            var bkupPath = Path.Combine(dirPath, fileName) + "_bkup.anim";
+            var bkupPath = Path.Combine(dirPath, fileName) + "_backup.anim";
             AssetDatabase.CopyAsset(assetPath, bkupPath);
         }
     }
