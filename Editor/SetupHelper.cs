@@ -77,8 +77,6 @@ namespace PBToggleApplier
             --EditorGUI.indentLevel;
             EditorGUILayout.Space();
 
-            Debug.Log("listProperty.arraySize: " + listProperty.arraySize);
-
             _ValidateSettings();
             using (new EditorGUI.DisabledScope(!_isValidSettings))
             {
