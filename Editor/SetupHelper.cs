@@ -73,7 +73,7 @@ namespace PBToggleApplier
             EditorGUILayout.LabelField("Save Option", EditorStyles.boldLabel);
             ++EditorGUI.indentLevel;
             isGenerateBackup = EditorGUILayout.ToggleLeft("Generate XXXX_backup.anim(XXXX.anim clone)", isGenerateBackup);
-            EditorGUILayout.LabelField("Backup Save Dir");
+            // EditorGUILayout.LabelField("Backup Save Dir");
             --EditorGUI.indentLevel;
             EditorGUILayout.Space();
 

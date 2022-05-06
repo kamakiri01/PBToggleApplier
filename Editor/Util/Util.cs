@@ -23,7 +23,7 @@ namespace PBToggleApplier
             foreach (var skinnedMeshRenderer in list)
             {
                 if (skinnedMeshRenderer.bones == null || skinnedMeshRenderer.bones.Length == 0) continue;
-                boneList.AddRange(skinnedMeshRenderer.bones.Select(e => e.gameObject));
+                boneList.AddRange(skinnedMeshRenderer.bones.Select(bone => bone?.gameObject));
             }
             return boneList.Distinct().ToList();
         }
@@ -33,7 +33,7 @@ namespace PBToggleApplier
             List<T> componentList = new List<T>();
             foreach (GameObject obj in list)
             {
-                T[] components = obj.GetComponentsInChildren<T>(true);
+                T[] components = obj?.GetComponentsInChildren<T>(true);
                 componentList.AddRange(components);
             }
             return componentList.Distinct().ToList();
